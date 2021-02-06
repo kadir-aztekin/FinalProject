@@ -9,7 +9,12 @@ namespace ConsoleUı
     {
         static void Main(string[] args)
         {
-            //ProductTest();
+            ProductTest();
+            //CategoryTest();
+        }
+
+        private static void CategoryTest()
+        {
             CategoryManager categoryManager = new CategoryManager(new EfCategoryDal());
             foreach (var x in categoryManager.GetAll())
             {
@@ -20,7 +25,7 @@ namespace ConsoleUı
         private static void ProductTest()
         {
             ProductManager productManager = new ProductManager(new EfProductDal());
-            foreach (var X in productManager.GetAll())
+            foreach (var X in productManager.GetProductDetails())
             {
                 Console.WriteLine(X.ProductName);
             }
