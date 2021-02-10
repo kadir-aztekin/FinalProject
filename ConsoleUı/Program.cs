@@ -25,10 +25,20 @@ namespace ConsoleUı
         private static void ProductTest()
         {
             ProductManager productManager = new ProductManager(new EfProductDal());
-            foreach (var X in productManager.GetProductDetails())
+            var result = productManager.GetProductDetails();
+            if (result.Success==true)
             {
-                Console.WriteLine(X.ProductName);
+                foreach (var product in result.Data)
+                {
+                    Console.WriteLine(product.ProductName+"/ "+product.CategoryName);
+                }
             }
+            else
+            {
+                Console.WriteLine(result.Message);
+            }
+
+            
         }
     }
 }
