@@ -1,6 +1,7 @@
 ﻿using Business.Concrete;
 using DataAccess.Concrete.EntityFrameWork;
 using DataAccess.Concrete.InMemory;
+using Entities.Concrete;
 using System;
 
 namespace ConsoleUı
@@ -9,8 +10,18 @@ namespace ConsoleUı
     {
         static void Main(string[] args)
         {
-            ProductTest();
+            //ProductTest();
             //CategoryTest();
+            //ProductAdd();
+
+        }
+
+        private static void ProductAdd()
+        {
+            ProductManager productManager = new ProductManager(new EfProductDal());
+            Product product = new Product()
+            { ProductName = "aztekbey", CategoryId = 2, UnitPrice = 1, UnitsInStock = 1 };
+            productManager.Add(product);
         }
 
         private static void CategoryTest()

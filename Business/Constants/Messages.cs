@@ -8,7 +8,8 @@ namespace Business.Constants
     {
         public static string ProductAdded = "ÜRÜN EKLENDİ";
         public static string ProductNameInvalid = "ÜRÜN İSMİ GEÇERSİZ";
-        internal static string MaintenanceTime = "Sistem Bakımda";
-        internal static string ProductsListed = "ÜRÜNLER LİSTELENDİ";
+        public static string MaintenanceTime = "Sistem Bakımda";
+        public static string ProductsListed = "ÜRÜNLER LİSTELENDİ";
+        public static string ProductDELETED = "Silindi";
     }
 }

@@ -31,12 +31,18 @@ namespace Business.Concrete
             //İŞ KODLARI YAZILIR 
             _productDal.Add(product);
             
-            return new Result(true,Messages.ProductAdded);
+            return new SuccessResult(Messages.ProductAdded);
+        }
+
+        public IResult Delete(Product product)
+        {
+            _productDal.Delete(product);
+            return new SuccessResult(Messages.ProductDELETED);
         }
 
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour==22)
+            if (DateTime.Now.Hour == 1)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
             }
