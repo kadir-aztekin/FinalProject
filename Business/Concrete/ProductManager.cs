@@ -1,11 +1,14 @@
 ﻿
 using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using DataAccess.Concrete.InMemory;
 using Entitie.DTOS;
 using Entities.Concrete;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,13 +25,15 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
+        [ValidationAspect(typeof)]
         public IResult Add(Product product)
         {
-            if (product.ProductName.Length<2)
-            {
-                return new ErrorResult(Messages.ProductNameInvalid);
-            }
+            //validation :Doğrulama Kodları
+            //isvalid : geçeerli değilse demek
+
             //İŞ KODLARI YAZILIR 
+            ValidationTool.Validate(new ProductValidator(), product);
+            
             _productDal.Add(product);
             
             return new SuccessResult(Messages.ProductAdded);
