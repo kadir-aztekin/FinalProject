@@ -2,7 +2,9 @@
 using Business.Abstract;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.CrossCuttingConcerns.Validation;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using DataAccess.Concrete.InMemory;
@@ -11,6 +13,7 @@ using Entities.Concrete;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Business.Concrete
@@ -18,25 +21,37 @@ namespace Business.Concrete
     public class ProductManager : IProductService
     {
         IProductDal _productDal;
+        ICategoryService _categoryService;
 
 
-        public ProductManager(IProductDal productDal)
+
+        public ProductManager(IProductDal productDal,ICategoryService categoryService)
         {
             _productDal = productDal;
+            _categoryService = categoryService;
         }
 
-        [ValidationAspect(typeof)]
+        [ValidationAspect(typeof(ProductValidator))]
+
         public IResult Add(Product product)
         {
-            //validation :Doğrulama Kodları
-            //isvalid : geçeerli değilse demek
+            //Aynı isimde ürün eklenemez
+            //Eğer mevcut kategori sayısı 15'i geçtiyse sisteme yeni ürün eklenemez. ve 
+            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName),
+                CheckIfProductCountOfCategoryCorrect(product.CategoryId), CheckIfCategoryLimitExceded());
 
-            //İŞ KODLARI YAZILIR 
-            ValidationTool.Validate(new ProductValidator(), product);
-            
+            if (result != null)
+            {
+                return result;
+            }
+
             _productDal.Add(product);
-            
+
             return new SuccessResult(Messages.ProductAdded);
+
+
+
+            //23:10 Dersteyiz
         }
 
         public IResult Delete(Product product)
@@ -74,5 +89,34 @@ namespace Business.Concrete
         {
             return new SuccessDataResult<List<ProductDetailDto>> (_productDal.GetProductDetails());
         }
+        private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
+        {
+            //Select count(*) from products where categoryId=1
+            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
+            if (result >= 15)
+            {
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
+        }
+        private IResult CheckIfCategoryLimitExceded()
+        {
+            var result = _categoryService.GetAll();
+            if (result.Data.Count>15)
+            {
+                return new ErrorResult(Messages.CheckIfCategoryLimitExceded);
+            }
+            return new SuccessResult();
+        }
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+            if (result)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
+            }
+            return new SuccessResult();
+        }
+
     }
 }
