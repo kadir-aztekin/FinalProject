@@ -1,5 +1,6 @@
-﻿
-using Business.Abstract;
+﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
+using Business.CCS;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
@@ -7,9 +8,8 @@ using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
-using DataAccess.Concrete.InMemory;
-using Entitie.DTOS;
-using Entities.Concrete;
+using Entity.Concrete;
+using Entity.DTOs;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -22,80 +22,81 @@ namespace Business.Concrete
     {
         IProductDal _productDal;
         ICategoryService _categoryService;
-
-
-
+       
         public ProductManager(IProductDal productDal,ICategoryService categoryService)
         {
             _productDal = productDal;
             _categoryService = categoryService;
         }
-
+        [SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))]
-
-        public IResult Add(Product product)
+        public IResult  Add(Product product)
         {
-            //Aynı isimde ürün eklenemez
-            //Eğer mevcut kategori sayısı 15'i geçtiyse sisteme yeni ürün eklenemez. ve 
-            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName),
-                CheckIfProductCountOfCategoryCorrect(product.CategoryId), CheckIfCategoryLimitExceded());
+            IResult result =BusinessRules.Run(CheckIfProductNameExists(product.ProductName),CheckIfProductCountOfCategoryCorrect(product.CategoryId),CheckIfCategoryLimitExceded());
 
-            if (result != null)
+            if (result!=null)
             {
                 return result;
             }
-
             _productDal.Add(product);
-
             return new SuccessResult(Messages.ProductAdded);
 
-
-
-            //23:10 Dersteyiz
-        }
-
-        public IResult Delete(Product product)
-        {
-            _productDal.Delete(product);
-            return new SuccessResult(Messages.ProductDELETED);
         }
 
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour == 1)
+            if (DateTime.Now.Hour==11)
             {
-                return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
+                return new ErrorDataResult<List<Product>>(Messages.MainintenanceTime);
             }
-            //İŞ KODLARI
-            return  new SuccessDataResult<List<Product>> (_productDal.GetAll(),Messages.ProductsListed);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(),Messages.ProductsListed);
         }
 
-        public IDataResult<List<Product>> GetAllByCategoryId(int id)
+        public IDataResult<List<Product>> GetAllByCategory(int ıd)
         {
-            return new SuccessDataResult<List<Product>> (_productDal.GetAll(p => p.CategoryId ==id));
+            return   new SuccessDataResult<List<Product>>(_productDal.GetAll(c => c.CategoryId == ıd));
         }
 
         public IDataResult<Product> GetById(int productId)
         {
-            return new SuccessDataResult<Product> (_productDal.Get(p => p.ProductId == productId));
+            return  new SuccessDataResult<Product> (_productDal.Get(p => p.ProductId == productId));
         }
 
         public IDataResult<List<Product>> GetByUnitPrice(decimal min, decimal max)
         {
-            return new SuccessDataResult<List<Product>> (_productDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
         }
 
         public IDataResult<List<ProductDetailDto>> GetProductDetails()
         {
-            return new SuccessDataResult<List<ProductDetailDto>> (_productDal.GetProductDetails());
+            return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
+        }
+        [ValidationAspect(typeof(ProductValidator))]
+        public IResult Update(Product product)
+        {
+            if (CheckIfProductCountOfCategoryCorrect(product.CategoryId).Success)
+            {
+                _productDal.Update(product);
+                return new SuccessResult(Messages.ProductUpdate);
+            }
+            return new ErrorResult();
+           
         }
         private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
         {
-            //Select count(*) from products where categoryId=1
             var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count;
-            if (result >= 15)
+            if (result >= 10)
             {
                 return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
+        }
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+            if (result==true)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
             }
             return new SuccessResult();
         }
@@ -104,19 +105,12 @@ namespace Business.Concrete
             var result = _categoryService.GetAll();
             if (result.Data.Count>15)
             {
-                return new ErrorResult(Messages.CheckIfCategoryLimitExceded);
+                return new ErrorResult(Messages.CategoryLimitExceded);
             }
             return new SuccessResult();
         }
-        private IResult CheckIfProductNameExists(string productName)
-        {
-            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
-            if (result)
-            {
-                return new ErrorResult(Messages.ProductNameAlreadyExists);
-            }
-            return new SuccessResult();
-        }
-
+       
     }
 }
+//BEN DIYORUM Kİ DATAACCESSE SOR BAKALIM  IZNI VARMI  GİBİ DÜŞÜNEBİLİRİZ
+// OYUZDE N CONSTRUCTOR YAPIYRUZ _PRODUCTDAL ORDAN VERİ ALIYOR 

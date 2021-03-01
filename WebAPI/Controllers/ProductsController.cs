@@ -1,7 +1,7 @@
 ﻿using Business.Abstract;
 using Business.Concrete;
 using DataAccess.Concrete.EntityFrameWork;
-using Entities.Concrete;
+using Entity.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,36 +11,35 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]")] //INSANLAR BIZE NASIL ULASSSIN DEMEK CHROME DA  HANİ APİ/PRODUCTS YAZDIGIMIZ YERIN TANIMI 
+    [ApiController]  // ATTRIBUTE DENİR : BİR CLASS İLGİLİ BİLGİ VERME YONTEMİDİR 
     public class ProductsController : ControllerBase
     {
-        //Loosely  coupling :Gevsek Baglılık 
-        //naming convention
-        //IOC Container -- İnversion of Control
+        //Constructor 
+        //IoC Container -Inversıon of Control 
+        //IoC containerii biz startup da tanımlayabildik AddSingleton da tanımladık
         IProductService _productService;
 
+
+        //Loosely Coupling --Gevsek Bagımlılık 
         public ProductsController(IProductService productService)
         {
             _productService = productService;
         }
 
-        [HttpGet("getall")]
+        [HttpGet("getall")] //select * from ıslemı gıbı dusun 
         public IActionResult GetAll()
         {
-            //Dependency chain
-            var result =  _productService.GetAll();
+
+            //Dependency chain --Bagımlılık zıncırı 
+            var result = _productService.GetAll();
             if (result.Success)
             {
                 return Ok(result.Data);
-
-                //200 DATA KENDİSİ 
             }
             return BadRequest(result.Message);
-            //400 DATA VE MESAJI
-            
         }
-        [HttpGet ("getbyid")]
+        [HttpGet("getbyıd")] 
         public IActionResult GetById(int id)
         {
             var result = _productService.GetById(id);
@@ -51,7 +50,8 @@ namespace WebAPI.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost ("add")] //EKLEME  //TABLOYA EKLEMEK ICIN KULLANILIR POST 
+        [HttpPost("add")] //ekleme(add) silme(delete) update ıslemleri  gıbı
+
         public IActionResult Add(Product product)
         {
             var result = _productService.Add(product);
@@ -61,15 +61,16 @@ namespace WebAPI.Controllers
             }
             return BadRequest(result);
         }
-        [HttpPost ("delete")]
-        public IActionResult Delete(Product product)
+        [HttpPost ("update")]
+        public IActionResult Update(Product product)
         {
-            var result = _productService.Delete(product);
+            var result = _productService.Update(product);
             if (result.Success)
             {
                 return Ok(result);
             }
             return BadRequest(result);
         }
+
     }
-}
+} 

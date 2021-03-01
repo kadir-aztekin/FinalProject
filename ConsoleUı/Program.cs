@@ -1,7 +1,5 @@
 ﻿using Business.Concrete;
 using DataAccess.Concrete.EntityFrameWork;
-using DataAccess.Concrete.InMemory;
-using Entities.Concrete;
 using System;
 
 namespace ConsoleUı
@@ -10,38 +8,24 @@ namespace ConsoleUı
     {
         static void Main(string[] args)
         {
-            //ProductTest();
+            //Data Transformation Objects :DTOs
+            Console.WriteLine("kingaras");
+            
+
+
+            ProductTest();
             //CategoryTest();
-            //ProductAdd();
-
-        }
-
-        private static void ProductAdd()
-        {
-            ProductManager productManager = new ProductManager(new EfProductDal());
-            Product product = new Product()
-            { ProductName = "aztekbey", CategoryId = 2, UnitPrice = 1, UnitsInStock = 1 };
-            productManager.Add(product);
-        }
-
-        private static void CategoryTest()
-        {
-            CategoryManager categoryManager = new CategoryManager(new EfCategoryDal());
-            foreach (var x in categoryManager.GetAll())
-            {
-                Console.WriteLine(x.CategoryName);
-            }
         }
 
         private static void ProductTest()
         {
-            ProductManager productManager = new ProductManager(new EfProductDal());
+            ProductManager productManager = new ProductManager(new EfProductDal(),new CategoryManager(new EfCategoryDal()));
             var result = productManager.GetProductDetails();
-            if (result.Success==true)
+            if (result.Success)
             {
-                foreach (var product in result.Data)
+                foreach (var x in result.Data )
                 {
-                    Console.WriteLine(product.ProductName+"/ "+product.CategoryName);
+                    Console.WriteLine(x.ProductName + "/" + x.CategoryName);
                 }
             }
             else
@@ -50,6 +34,16 @@ namespace ConsoleUı
             }
 
             
+        }
+
+        private static void CategoryTest()
+        {
+            CategoryManager categoryManager = new CategoryManager(new EfCategoryDal());
+
+            //foreach (var x in categoryManager.GetAll())
+            //{
+            //    Console.WriteLine(x.CategoryName);
+            //}
         }
     }
 }

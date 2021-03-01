@@ -1,5 +1,5 @@
 ﻿using Core.Utilities.Results;
-using Entities.Concrete;
+using Entity.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,8 +10,7 @@ namespace Business.Abstract
     {
         IDataResult<List<Category>> GetAll();
         IDataResult<Category> GetById(int categoryId);
-
-
-
+        
+        
     }
 }

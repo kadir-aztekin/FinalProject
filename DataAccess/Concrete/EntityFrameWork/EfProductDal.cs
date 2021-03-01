@@ -1,7 +1,7 @@
 ﻿using Core.DataAccess.EntityFrameWork;
 using DataAccess.Abstract;
-using Entitie.DTOS;
-using Entities.Concrete;
+using Entity.Concrete;
+using Entity.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,9 +11,6 @@ using System.Text;
 
 namespace DataAccess.Concrete.EntityFrameWork
 {
-    //NUGET 
-
-    //EFENTİTYREPOSİTORY > IPRODUTCTDAL>EFPRODUCTDAL YANİ HEPSİNİ EFENTİTYREPOSİTORY İÇİNDE VAR 
     public class EfProductDal : EfEntityRepositoryBase<Product, NorthwindContext>, IProductDal
     {
         public List<ProductDetailDto> GetProductDetails()
@@ -23,11 +20,9 @@ namespace DataAccess.Concrete.EntityFrameWork
                 var result = from p in context.Products
                              join c in context.Categories
                              on p.CategoryId equals c.CategoryId
-                             select new ProductDetailDto 
-                             {ProductId=p.ProductId,ProductName=p.ProductName,CategoryName=c.CategoryName,UnitInStock=p.UnitsInStock };
+                             select new ProductDetailDto { ProductId = p.ProductId, ProductName = p.ProductName, CategoryName = c.CategoryName, UnitsInStock = p.UnitsInStock };
                 return result.ToList();
             }
-            
         }
     }
 }

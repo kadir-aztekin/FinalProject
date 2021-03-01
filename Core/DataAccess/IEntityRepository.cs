@@ -1,5 +1,4 @@
-﻿
-using Core.Entities;
+﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -7,22 +6,25 @@ using System.Text;
 
 namespace Core.DataAccess
 {
-    //GENERİC CONSTRAİNT : GENERIK KISIT DEMEK T OLAN YERE ENTITES DEKI URUNLER GIRILMELI  SARTLANDIRIYORUZ NERDEN GELECEGINI SEÇIYORUZ
-    //class : Refarans tip 
-    //IEntity : Ientity olabilir veya Ientity implemente eden bir nesne(CUSTOMER PRODUCT CATEGORY) olabilir
-    //new() : new'lenebilir olmalı
-    public interface IEntityRepository<T> where T:class,IEntity,new()
-        //BUTUN ABSTRAC ICINDEKI IPRODUCTDAL,ICATEGORY TEK BİR INTERFACE ICINDE TANIMLADIK 
-        //HEPSİNİ TEK BİR INTERFACE ICINDE KULLANABİLİRİZ 
+    public interface IEntityRepository<T>  where T:class ,IEntity,new()
     {
-        List<T> GetAll(Expression<Func<T,bool>> filter = null);
-        //YAZDIGIMIZ GETALL(.........) İÇİNE YAZILAN KOD (İF ELSE LİNQ ) GİBİ KOSUL BELİRTME ŞART İÇİN KULLANILIR
-        //YANİ DATAYI İŞTE ADI AHMET OLAN ID Sİ 3 OLAN GETİRMEK İÇİN KULLANILIR 
-        T Get(Expression<Func<T, bool>> filter);
-        void Add(T entity);
-        void Update(T entity);
-        void Delete(T entity);
+        List<T> GetAll(Expression<Func<T, bool>> filter = null); // return filter == null
+                                                                 // ? context.Set<entity>().ToList()
+                                                                 // : context.Set<entity>().Where(filter).ToList();
+
+
+        T Get(Expression<Func<T, bool>> filter = null); //return.context.Set<Entity>().SingleOrDefaulft(filter);
+
+        void Add(T entity); // var addedEntity = context.Entry(entity);
+                            // addedEntity.State =EntityState.Add;
+                            // context.SaveChanges();
 
         
+        void Delete(T entity);// var deleteEntity = context.Entry(entity);
+                              // deletedEntity.State =EntityState.Deleted;
+                              // context.SaveChanges();
+        void Update(T entity);// var updateEntity = context.Entry(entity);
+                              // updateEntity.State =EntityState.Modified;
+                              // context.SaveChanges();
     }
 }

@@ -8,14 +8,12 @@ using System.Text;
 
 namespace Core.DataAccess.EntityFrameWork
 {
-    //context : hangı verıtabanı hangı tablo onu icererir 
     public class EfEntityRepositoryBase<TEntity,TContext>:IEntityRepository<TEntity>
-        where   TEntity : class ,IEntity,new()
-        where  TContext : DbContext,new()
+        where TEntity:class,IEntity,new()
+        where TContext:DbContext,new()
     {
         public void Add(TEntity entity)
         {
-            //northwindcontext classına ekle demek 
             using (TContext context = new TContext())
             {
                 var addedEntity = context.Entry(entity);
@@ -33,12 +31,13 @@ namespace Core.DataAccess.EntityFrameWork
                 context.SaveChanges();
             }
         }
-
-        public TEntity Get(Expression<Func<TEntity, bool>> filter)
+        //GET TEK DATA GETİRİR OYUZDEN SİNGLEORDEFAULT DIYORUZ 
+        public TEntity Get(Expression<Func<TEntity, bool>> filter = null)
         {
             using (TContext context = new TContext())
             {
                 return context.Set<TEntity>().SingleOrDefault(filter);
+                //singleordefault urunlerı tek tek gezmeyı saglar  
             }
         }
 
@@ -46,6 +45,7 @@ namespace Core.DataAccess.EntityFrameWork
         {
             using (TContext context = new TContext())
             {
+                //ternary operatörü denir kosul yazılır ve ? dogru ıse calısan : yanlıs ıcın calısacak komut demek 
                 return filter == null
                     ? context.Set<TEntity>().ToList()
                     : context.Set<TEntity>().Where(filter).ToList();
@@ -56,8 +56,8 @@ namespace Core.DataAccess.EntityFrameWork
         {
             using (TContext context = new TContext())
             {
-                var updateEntity = context.Entry(entity);
-                updateEntity.State = EntityState.Modified;
+                var updatedEntity = context.Entry(entity);
+                updatedEntity.State = EntityState.Modified;
                 context.SaveChanges();
             }
         }
